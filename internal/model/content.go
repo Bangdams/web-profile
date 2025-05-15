@@ -16,12 +16,18 @@ type ContentCreateRequest struct {
 	Description string `json:"description" validate:"required"`
 	Image       string `json:"image" validate:"required"`
 	Address     string `json:"address" validate:"required"`
-	ContactInfo string `json:"contact_info" validate:"required"`
-	Category    string `json:"category" validate:"required"`
+	ContactInfo string `json:"contact_info" validate:"required,e164"`
+	Category    string `json:"category" validate:"required,oneof=kuliner wisata kerajinan"`
 	CreatedBy   uint   `json:"created_by" validate:"required"`
 }
 
 type ContentUpdateRequest struct {
-	ID uint `json:"id" validate:"required"`
-	ContentCreateRequest
+	ID          uint   `json:"id" validate:"required"`
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Image       string `json:"image"`
+	Address     string `json:"address" validate:"required"`
+	ContactInfo string `json:"contact_info" validate:"required,e164"`
+	Category    string `json:"category" validate:"required,oneof=kuliner wisata kerajinan"`
+	CreatedBy   uint   `json:"created_by" validate:"required"`
 }
