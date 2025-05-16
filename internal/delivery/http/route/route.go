@@ -1,14 +1,17 @@
 package route
 
 import (
+	"path/filepath"
+
 	"github.com/Bangdams/web-profile-API/internal/delivery/http"
 	"github.com/gofiber/fiber/v2"
 )
 
 type RouteConfig struct {
-	App               *fiber.App
-	AdminController   http.AdminController
-	ContentController http.ContentController
+	App                    *fiber.App
+	AdminController        http.AdminController
+	ContentController      http.ContentController
+	AnnouncementController http.AnnouncementController
 }
 
 func (config *RouteConfig) Setup() {
@@ -33,4 +36,18 @@ func (config *RouteConfig) Setup() {
 	config.App.Post("/api/contents", config.ContentController.Create)
 	config.App.Delete("/api/contents/:id", config.ContentController.Delete)
 	config.App.Put("/api/contents", config.ContentController.Update)
+
+	// API for announcement
+	config.App.Get("/api/announcements", config.AnnouncementController.FindAll)
+	config.App.Get("/api/announcements/:announcement_id", config.AnnouncementController.FindById)
+	config.App.Post("/api/announcements", config.AnnouncementController.Create)
+	config.App.Delete("/api/announcements/:id", config.AnnouncementController.Delete)
+	config.App.Put("/api/announcements", config.AnnouncementController.Update)
+
+	// API for image
+	config.App.Get("/assets/image/:filename", func(ctx *fiber.Ctx) error {
+		filename := ctx.Params("filename")
+		filepath := filepath.Join("./upload", filename)
+		return ctx.SendFile(filepath)
+	})
 }

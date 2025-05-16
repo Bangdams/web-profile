@@ -21,19 +21,23 @@ func Bootstrap(config *BootstrapConfig) {
 	adminRepo := repository.NewAdminRepository()
 	refreshTokenRepo := repository.NewRefreshTokenRepository()
 	contentRepo := repository.NewContentRepository()
+	announcementRepo := repository.NewAnnouncementRepository()
 
 	// usecase
 	adminUsecase := usecase.NewAdminUsecase(adminRepo, refreshTokenRepo, config.DB, config.Validate)
 	contentUsecas := usecase.NewContentUsecase(contentRepo, adminRepo, config.DB, config.Validate)
+	announcementUsecase := usecase.NewAnnouncementUsecase(announcementRepo, adminRepo, config.DB, config.Validate)
 
 	// controller
 	adminController := http.NewAdminController(adminUsecase)
 	contentController := http.NewContentController(contentUsecas)
+	announcementController := http.NewAnnouncementController(announcementUsecase)
 
 	routeConfig := route.RouteConfig{
-		App:               config.App,
-		AdminController:   adminController,
-		ContentController: contentController,
+		App:                    config.App,
+		AdminController:        adminController,
+		ContentController:      contentController,
+		AnnouncementController: announcementController,
 	}
 
 	routeConfig.Setup()

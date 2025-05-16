@@ -10,8 +10,9 @@ import (
 
 func Middelware(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://127.0.0.1:5500/",
+		AllowOrigins:     "http://127.0.0.1:5500", // asal frontend
 		AllowCredentials: true,
+		AllowHeaders:     "Content-Type",
 	}))
 
 	app.Use("/api", jwtware.New(jwtware.Config{

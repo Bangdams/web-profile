@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/Bangdams/web-profile-API/internal/entity"
 	"github.com/Bangdams/web-profile-API/internal/model"
@@ -20,7 +21,7 @@ type ContentUsecase interface {
 	Create(ctx context.Context, request *model.ContentCreateRequest) (*model.ContentResponse, error)
 	Update(ctx context.Context, request *model.ContentUpdateRequest) (*model.ContentResponse, error)
 	Delete(ctx context.Context, contentId uint) error
-	FindAll(ctx context.Context) (*[]model.ContentResponse, error)
+	FindAll(ctx context.Context, order string, category string) (*[]model.ContentResponse, error)
 	FindById(ctx context.Context, contentId uint) (*model.ContentResponse, error)
 }
 
@@ -157,20 +158,21 @@ func (contentUsecase *ContentUsecaseImpl) Delete(ctx context.Context, contentId 
 }
 
 // FindAll implements ContentUsecase.
-func (contentUsecase *ContentUsecaseImpl) FindAll(ctx context.Context) (*[]model.ContentResponse, error) {
+func (contentUsecase *ContentUsecaseImpl) FindAll(ctx context.Context, order string, category string) (*[]model.ContentResponse, error) {
 	tx := contentUsecase.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
 	var contents = &[]entity.Content{}
-	err := contentUsecase.ContentRepo.FindAll(tx, contents)
+	category = strings.ToLower(category)
+
+	if category != "wisata" && category != "kuliner" && category != "kerajinan" {
+		category = ""
+	}
+
+	err := contentUsecase.ContentRepo.FindAll(tx, strings.ToUpper(order), category, contents)
 	if err != nil {
 		log.Println("failed when find all repo content : ", err)
 		return nil, fiber.ErrInternalServerError
-	}
-
-	for _, v := range *contents {
-		log.Println(v.Title)
-		log.Println(v.Admin.Name)
 	}
 
 	if err := tx.Commit().Error; err != nil {

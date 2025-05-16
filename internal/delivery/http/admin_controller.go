@@ -58,7 +58,8 @@ func (controller *AdminControllerImpl) Login(ctx *fiber.Ctx) error {
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
+		SameSite: "Lax",
 		Path:     "/",
 		MaxAge:   60 * 60 * 24 * lifeTime,
 	})

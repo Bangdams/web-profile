@@ -109,7 +109,9 @@ func (controller *ContentControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	var responses *[]model.ContentResponse
 	var err error
 
-	responses, err = controller.ContentUsecase.FindAll(ctx.UserContext())
+	order := ctx.Query("order")
+	category := ctx.Query("category")
+	responses, err = controller.ContentUsecase.FindAll(ctx.UserContext(), order, category)
 	if err != nil {
 		log.Println("failed to find all content")
 		return err
