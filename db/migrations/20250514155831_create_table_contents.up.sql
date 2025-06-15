@@ -1,7 +1,7 @@
 CREATE TABLE contents (
   id INT AUTO_INCREMENT,
   title VARCHAR(150) NOT NULL,
-  description TEXT NOT NULL,
+  content TEXT NOT NULL,
   image TEXT,
   address TEXT,
   contact_info VARCHAR(100),
