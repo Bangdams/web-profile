@@ -28,7 +28,7 @@ type AdminUsecase interface {
 	Update(ctx context.Context, request *model.AdminUpdateRequest) (*model.AdminResponse, error)
 	Delete(ctx context.Context, adminId uint) error
 	FindAll(ctx context.Context, adminId uint) (*[]model.AdminResponse, error)
-	FindByEmail(ctx context.Context, emailRequest string) (*model.AdminResponse, error)
+	FindByUsername(ctx context.Context, usernameRequest string) (*model.AdminResponse, error)
 	Login(ctx context.Context, request *model.LoginRequest, requestRefreshToken string) (*model.LoginResponse, string, error)
 	Logout(ctx context.Context, refreshToken string) error
 	Refresh(ctx context.Context, refreshToken string) (*model.LoginResponse, error)
@@ -64,8 +64,8 @@ func (adminUsecase *AdminUsecaseImpl) Login(ctx context.Context, request *model.
 
 	admin := &entity.Admin{}
 
-	if err := adminUsecase.AdminRepo.Login(tx, admin, request.Email); err != nil {
-		log.Println("invalid Email : ", err)
+	if err := adminUsecase.AdminRepo.Login(tx, admin, request.Username); err != nil {
+		log.Println("invalid Username : ", err)
 		return nil, "", fiber.ErrUnauthorized
 	}
 
@@ -164,9 +164,9 @@ func (adminUsecase *AdminUsecaseImpl) Refresh(ctx context.Context, refreshToken 
 
 	adminId := claims["admin_id"].(float64)
 	request := entity.Admin{
-		ID:    uint(adminId),
-		Name:  claims["name"].(string),
-		Email: claims["email"].(string),
+		ID:       uint(adminId),
+		Name:     claims["name"].(string),
+		Username: claims["email"].(string),
 	}
 
 	if err := adminUsecase.RefreshTokenRepo.CheckStatusLogout(tx, uint(adminId)); err != nil {
@@ -218,11 +218,11 @@ func (adminUsecase *AdminUsecaseImpl) Create(ctx context.Context, request *model
 
 	admin := &entity.Admin{
 		Name:     request.Name,
-		Email:    request.Email,
+		Username: request.Username,
 		Password: string(password),
 	}
 
-	if err := adminUsecase.AdminRepo.FindByEmail(tx, admin); err == nil {
+	if err := adminUsecase.AdminRepo.FindByUsername(tx, admin); err == nil {
 		errorResponse.Message = "Duplicate entry"
 		errorResponse.Details = []string{"email already exists in the database."}
 
@@ -313,14 +313,14 @@ func (adminUsecase *AdminUsecaseImpl) FindAll(ctx context.Context, adminId uint)
 }
 
 // FindById implements AdminUsecase.
-func (adminUsecase *AdminUsecaseImpl) FindByEmail(ctx context.Context, emailRequest string) (*model.AdminResponse, error) {
+func (adminUsecase *AdminUsecaseImpl) FindByUsername(ctx context.Context, emailRequest string) (*model.AdminResponse, error) {
 	tx := adminUsecase.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
 	admin := new(entity.Admin)
-	admin.Email = emailRequest
+	admin.Username = emailRequest
 
-	if err := adminUsecase.AdminRepo.FindByEmail(tx, admin); err != nil {
+	if err := adminUsecase.AdminRepo.FindByUsername(tx, admin); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			errorResponse := model.ErrorResponse{
 				Message: "Admin data was not found",
@@ -374,10 +374,10 @@ func (adminUsecase *AdminUsecaseImpl) Update(ctx context.Context, request *model
 	}
 
 	admin := &entity.Admin{
-		Email: request.Email,
+		Username: request.Username,
 	}
 
-	err = adminUsecase.AdminRepo.FindByEmail(tx, admin)
+	err = adminUsecase.AdminRepo.FindByUsername(tx, admin)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			errorResponse.Message = "Admin data was not found"

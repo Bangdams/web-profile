@@ -3,14 +3,14 @@ package model
 import "github.com/golang-jwt/jwt/v5"
 
 type AdminResponse struct {
-	ID    uint   `json:"id"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
 }
 
 type AdminCreateRequest struct {
 	Name     string `json:"name" validate:"required"`
-	Email    string `json:"email" validate:"required"`
+	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
@@ -20,7 +20,7 @@ type AdminUpdateRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -29,8 +29,8 @@ type LoginResponse struct {
 }
 
 type TokenPyload struct {
-	AdminID uint   `json:"admin_id"`
-	Email   string `json:"email"`
-	Name    string `json:"name"`
+	AdminID  uint   `json:"admin_id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
 	jwt.RegisteredClaims
 }

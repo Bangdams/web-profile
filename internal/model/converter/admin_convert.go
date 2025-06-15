@@ -11,9 +11,9 @@ func AdminToResponse(admin *entity.Admin) *model.AdminResponse {
 	log.Println("log from admin to response")
 
 	return &model.AdminResponse{
-		ID:    admin.ID,
-		Email: admin.Email,
-		Name:  admin.Name,
+		ID:       admin.ID,
+		Username: admin.Username,
+		Name:     admin.Name,
 	}
 }
 

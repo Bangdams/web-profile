@@ -17,7 +17,7 @@ type AdminController interface {
 	Update(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
-	FindByEmail(ctx *fiber.Ctx) error
+	FindByUsername(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
 	Logout(ctx *fiber.Ctx) error
 	Refresh(ctx *fiber.Ctx) error
@@ -156,13 +156,13 @@ func (controller *AdminControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	return ctx.JSON(model.WebResponses[model.AdminResponse]{Data: responses})
 }
 
-// FindByEmail implements AdminController.
-func (controller *AdminControllerImpl) FindByEmail(ctx *fiber.Ctx) error {
-	email := ctx.Params("email")
+// FindByUsername implements AdminController.
+func (controller *AdminControllerImpl) FindByUsername(ctx *fiber.Ctx) error {
+	username := ctx.Params("username")
 
-	response, err := controller.AdminUsecase.FindByEmail(ctx.UserContext(), email)
+	response, err := controller.AdminUsecase.FindByUsername(ctx.UserContext(), username)
 	if err != nil {
-		log.Println("failed to find by email admin")
+		log.Println("failed to find by username admin")
 		return err
 	}
 

@@ -11,7 +11,7 @@ type AdminRepository interface {
 	Delete(tx *gorm.DB, admin *entity.Admin) error
 	FindAll(tx *gorm.DB, adminId uint, admins *[]entity.Admin) error
 	FindById(tx *gorm.DB, admin *entity.Admin) error
-	FindByEmail(tx *gorm.DB, admin *entity.Admin) error
+	FindByUsername(tx *gorm.DB, admin *entity.Admin) error
 	Login(tx *gorm.DB, admin *entity.Admin, keyword string) error
 }
 
@@ -25,12 +25,12 @@ func NewAdminRepository() AdminRepository {
 
 // Login implements AdminRepository.
 func (repository *AdminRepositoryImpl) Login(tx *gorm.DB, admin *entity.Admin, keyword string) error {
-	return tx.Where("email = ?", keyword).First(admin).Error
+	return tx.Where("username = ?", keyword).First(admin).Error
 }
 
-// FindByEmail implements AdminRepository.
-func (repository *AdminRepositoryImpl) FindByEmail(tx *gorm.DB, admin *entity.Admin) error {
-	return tx.First(admin, "email=?", admin.Email).Error
+// FindByUsername implements AdminRepository.
+func (repository *AdminRepositoryImpl) FindByUsername(tx *gorm.DB, admin *entity.Admin) error {
+	return tx.First(admin, "username=?", admin.Username).Error
 }
 
 // FindById implements AdminRepository.
