@@ -17,6 +17,7 @@ type AnnouncementController interface {
 	Delete(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
 	FindById(ctx *fiber.Ctx) error
+	GetFirst(ctx *fiber.Ctx) error
 }
 
 type AnnouncementControllerImpl struct {
@@ -108,6 +109,17 @@ func (controller *AnnouncementControllerImpl) FindById(ctx *fiber.Ctx) error {
 	}
 
 	response, err := controller.AnnouncementUsecase.FindById(ctx.UserContext(), uint(announcementId))
+	if err != nil {
+		log.Println("failed to find by id announcement")
+		return err
+	}
+
+	return ctx.JSON(model.WebResponse[*model.AnnouncementResponse]{Data: response})
+}
+
+// GetFirst implements AnnouncementController.
+func (controller *AnnouncementControllerImpl) GetFirst(ctx *fiber.Ctx) error {
+	response, err := controller.AnnouncementUsecase.GetFirst(ctx.UserContext())
 	if err != nil {
 		log.Println("failed to find by id announcement")
 		return err

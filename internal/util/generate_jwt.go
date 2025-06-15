@@ -23,7 +23,7 @@ func GenerateAccessToken(request *entity.Admin) (string, error) {
 	}
 
 	token.AdminID = request.ID
-	token.Email = request.Email
+	token.Username = request.Username
 	token.Name = request.Name
 
 	_token := jwt.NewWithClaims(jwt.SigningMethodHS256, token)
@@ -44,7 +44,7 @@ func GenerateRefreshToken(request *entity.Admin) (string, error) {
 	}
 
 	token.AdminID = request.ID
-	token.Email = request.Email
+	token.Username = request.Username
 	token.Name = request.Name
 
 	_token := jwt.NewWithClaims(jwt.SigningMethodHS256, token)

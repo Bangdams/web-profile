@@ -11,6 +11,7 @@ type AnnouncementRepository interface {
 	Delete(tx *gorm.DB, announcement *entity.Announcement) error
 	FindAll(tx *gorm.DB, order string, announcements *[]entity.Announcement) error
 	FindById(tx *gorm.DB, announcement *entity.Announcement) error
+	GetFirst(tx *gorm.DB, announcement *entity.Announcement) error
 }
 
 type AnnouncementRepositoryImpl struct {
@@ -26,14 +27,19 @@ func (repository *AnnouncementRepositoryImpl) FindAll(tx *gorm.DB, order string,
 	if order == "ASC" {
 		return tx.Joins("Admin").
 			Order("announcements.created_at ASC").
-			Find(announcements).Error
+			Find(announcements).Limit(4).Error
 	}
 	return tx.Joins("Admin").
 		Order("announcements.created_at DESC").
-		Find(announcements).Error
+		Find(announcements).Limit(4).Error
 }
 
 // FindById implements AnnouncementRepository.
 func (repository *AnnouncementRepositoryImpl) FindById(tx *gorm.DB, announcement *entity.Announcement) error {
 	return tx.Joins("Admin").First(announcement).Error
+}
+
+// GetFirst implements AnnouncementRepository.
+func (repository *AnnouncementRepositoryImpl) GetFirst(tx *gorm.DB, announcement *entity.Announcement) error {
+	return tx.Joins("Admin").Order("announcements.created_at DESC").First(announcement).Error
 }

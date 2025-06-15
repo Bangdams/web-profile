@@ -10,6 +10,7 @@ type ContentRepository interface {
 	Update(tx *gorm.DB, content *entity.Content) error
 	Delete(tx *gorm.DB, content *entity.Content) error
 	FindAll(tx *gorm.DB, order string, category string, contents *[]entity.Content) error
+	FindWithLimit(tx *gorm.DB, order string, category string, contents *[]entity.Content) error
 	FindById(tx *gorm.DB, content *entity.Content) error
 }
 
@@ -50,6 +51,36 @@ func (repository *ContentRepositoryImpl) FindAll(tx *gorm.DB, order string, cate
 	return tx.Joins("Admin").
 		Order("contents.created_at DESC").
 		Find(contents).Error
+}
+
+// FindWithLimit implements ContentRepository.
+func (repository *ContentRepositoryImpl) FindWithLimit(tx *gorm.DB, order string, category string, contents *[]entity.Content) error {
+	if order == "ASC" {
+		if category != "" {
+			return tx.Joins("Admin").
+				Order("contents.created_at ASC").
+				Where("contents.category = ?", category).
+				Find(contents).
+				Limit(8).Error
+		}
+		return tx.Joins("Admin").
+			Order("contents.created_at ASC").
+			Find(contents).
+			Limit(8).Error
+	}
+
+	if category != "" {
+		return tx.Joins("Admin").
+			Order("contents.created_at DESC").
+			Where("contents.category = ?", category).
+			Find(contents).
+			Limit(8).Error
+	}
+
+	return tx.Joins("Admin").
+		Order("contents.created_at DESC").
+		Find(contents).
+		Limit(8).Error
 }
 
 // FindById implements ContentRepository.

@@ -16,6 +16,7 @@ type ContentController interface {
 	Update(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error
 	FindAll(ctx *fiber.Ctx) error
+	FindWithLimit(ctx *fiber.Ctx) error
 	FindById(ctx *fiber.Ctx) error
 }
 
@@ -56,7 +57,7 @@ func (controller *ContentControllerImpl) Create(ctx *fiber.Ctx) error {
 	}
 
 	request.Title = ctx.FormValue("title")
-	request.Description = ctx.FormValue("description")
+	request.Content = ctx.FormValue("description")
 	request.Address = ctx.FormValue("address")
 	request.ContactInfo = ctx.FormValue("contact_info")
 	request.Category = ctx.FormValue("category")
@@ -120,6 +121,22 @@ func (controller *ContentControllerImpl) FindAll(ctx *fiber.Ctx) error {
 	return ctx.JSON(model.WebResponses[model.ContentResponse]{Data: responses})
 }
 
+// FindWithLimit implements ContentController.
+func (controller *ContentControllerImpl) FindWithLimit(ctx *fiber.Ctx) error {
+	var responses *[]model.ContentResponse
+	var err error
+
+	order := ctx.Query("order")
+	category := ctx.Query("category")
+	responses, err = controller.ContentUsecase.FindWithLimit(ctx.UserContext(), order, category)
+	if err != nil {
+		log.Println("failed to FindWithLimit content")
+		return err
+	}
+
+	return ctx.JSON(model.WebResponses[model.ContentResponse]{Data: responses})
+}
+
 // Update implements ContentController.
 func (controller *ContentControllerImpl) Update(ctx *fiber.Ctx) error {
 	request := new(model.ContentUpdateRequest)
@@ -138,7 +155,7 @@ func (controller *ContentControllerImpl) Update(ctx *fiber.Ctx) error {
 
 	request.ID = uint(id)
 	request.Title = ctx.FormValue("title")
-	request.Description = ctx.FormValue("description")
+	request.Content = ctx.FormValue("description")
 	request.Address = ctx.FormValue("address")
 	request.ContactInfo = ctx.FormValue("contact_info")
 	request.Category = ctx.FormValue("category")

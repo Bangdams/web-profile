@@ -16,6 +16,7 @@ func AnnouncementToResponse(announcement *entity.Announcement) *model.Announceme
 		Content:     announcement.Content,
 		Image:       announcement.Image,
 		PublishedBy: announcement.Admin.Name,
+		CreatedAt:   announcement.CreatedAt.Format("2006-01-02"),
 	}
 }
 

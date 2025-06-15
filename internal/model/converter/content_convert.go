@@ -13,12 +13,13 @@ func ContentToResponse(content *entity.Content) *model.ContentResponse {
 	return &model.ContentResponse{
 		ID:          content.ID,
 		Title:       content.Title,
-		Description: content.Description,
+		Content:     content.Content,
 		Image:       content.Image,
 		Address:     content.Address,
 		ContactInfo: content.ContactInfo,
 		Category:    content.Category,
 		CreatedBy:   content.Admin.Name,
+		CreatedAt:   content.CreatedAt.Format("2006-01-02"),
 	}
 }
 

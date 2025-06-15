@@ -6,6 +6,7 @@ type AnnouncementResponse struct {
 	Content     string `json:"content"`
 	Image       string `json:"image"`
 	PublishedBy string `json:"published_by"`
+	CreatedAt   string `json:"created_at"`
 }
 
 type AnnouncementCreateRequest struct {

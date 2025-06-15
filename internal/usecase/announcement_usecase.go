@@ -23,6 +23,7 @@ type AnnouncementUsecase interface {
 	Delete(ctx context.Context, announcemenId uint) error
 	FindAll(ctx context.Context, order string) (*[]model.AnnouncementResponse, error)
 	FindById(ctx context.Context, announcementtId uint) (*model.AnnouncementResponse, error)
+	GetFirst(ctx context.Context) (*model.AnnouncementResponse, error)
 }
 
 type AnnouncementUsecaseImpl struct {
@@ -184,6 +185,37 @@ func (announcementUsecase *AnnouncementUsecaseImpl) FindById(ctx context.Context
 	announcement.ID = announcementId
 
 	if err := announcementUsecase.AnnouncementRepo.FindById(tx, announcement); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			errorResponse := model.ErrorResponse{
+				Message: "Announcement data was not found",
+				Details: []string{},
+			}
+
+			jsonString, _ := json.Marshal(errorResponse)
+
+			log.Println("error find by id conten usecase : ", err)
+
+			return nil, fiber.NewError(fiber.ErrNotFound.Code, string(jsonString))
+		} else {
+			log.Println("Error find by id conten usecase:", err)
+			return nil, fiber.ErrInternalServerError
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		log.Println("Failed commit transaction : ", err)
+		return nil, fiber.ErrInternalServerError
+	}
+	return converter.AnnouncementToResponse(announcement), nil
+}
+
+// GetFirst implements AnnouncementUsecase.
+func (announcementUsecase *AnnouncementUsecaseImpl) GetFirst(ctx context.Context) (*model.AnnouncementResponse, error) {
+	tx := announcementUsecase.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	announcement := new(entity.Announcement)
+	if err := announcementUsecase.AnnouncementRepo.GetFirst(tx, announcement); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			errorResponse := model.ErrorResponse{
 				Message: "Announcement data was not found",

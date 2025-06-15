@@ -22,6 +22,7 @@ type ContentUsecase interface {
 	Update(ctx context.Context, request *model.ContentUpdateRequest) (*model.ContentResponse, error)
 	Delete(ctx context.Context, contentId uint) error
 	FindAll(ctx context.Context, order string, category string) (*[]model.ContentResponse, error)
+	FindWithLimit(ctx context.Context, order string, category string) (*[]model.ContentResponse, error)
 	FindById(ctx context.Context, contentId uint) (*model.ContentResponse, error)
 }
 
@@ -68,7 +69,7 @@ func (contentUsecase *ContentUsecaseImpl) Create(ctx context.Context, request *m
 
 	content := &entity.Content{
 		Title:       request.Title,
-		Description: request.Description,
+		Content:     request.Content,
 		Image:       request.Image,
 		Address:     request.Address,
 		ContactInfo: request.ContactInfo,
@@ -184,6 +185,33 @@ func (contentUsecase *ContentUsecaseImpl) FindAll(ctx context.Context, order str
 	return converter.ContentToResponses(contents), nil
 }
 
+// FindWithLimit implements ContentUsecase.
+func (contentUsecase *ContentUsecaseImpl) FindWithLimit(ctx context.Context, order string, category string) (*[]model.ContentResponse, error) {
+	tx := contentUsecase.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	var contents = &[]entity.Content{}
+	category = strings.ToLower(category)
+
+	if category != "wisata" && category != "kuliner" && category != "kerajinan" {
+		category = ""
+	}
+
+	err := contentUsecase.ContentRepo.FindWithLimit(tx, strings.ToUpper(order), category, contents)
+	if err != nil {
+		log.Println("failed when FindWithLimit repo content : ", err)
+		return nil, fiber.ErrInternalServerError
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		log.Println("Failed commit transaction : ", err)
+		return nil, fiber.ErrInternalServerError
+	}
+
+	log.Println("success find FindWithLimitall from usecase content")
+	return converter.ContentToResponses(contents), nil
+}
+
 // FindById implements ContentUsecase.
 func (contentUsecase *ContentUsecaseImpl) FindById(ctx context.Context, contentId uint) (*model.ContentResponse, error) {
 	tx := contentUsecase.DB.WithContext(ctx).Begin()
@@ -245,7 +273,7 @@ func (contentUsecase *ContentUsecaseImpl) Update(ctx context.Context, request *m
 	content := &entity.Content{
 		ID:          request.ID,
 		Title:       request.Title,
-		Description: request.Description,
+		Content:     request.Content,
 		Image:       request.Image,
 		Address:     request.Address,
 		ContactInfo: request.ContactInfo,
